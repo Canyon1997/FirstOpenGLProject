@@ -1,1 +1,1 @@
-Hello, this is my first Computer Graphics program in my journey of becoming a computer graphics engineer. This is a tutorial of rendering to the screen from LearnOpenGL.com
+Hello, this is my first Computer Graphics program in my journey of becoming a computer graphics engineer. This project is based on the "Getting Started" section of LearnOpenGL.com
