@@ -31,6 +31,20 @@ int main(void)
 	}
 	glfwMakeContextCurrent(window);
 
+    // specify vertices for a triangle 
+	// Note: these vertices need to be in Normalized Device Coordinates (NDC)
+	// x,y,z values between -1.0 and 1.0
+	// Any coordinate that falls outside this range will be discarded/clipped
+	// and wont be visible on your screen
+	float vertices[] = {
+		-0.5f, -0.5f, 0.0f,
+		0.5f, -0.5f, 0.0f,
+		0.0f, 0.5f, 0.0f
+	}
+
+
+
+
 	// Initialize GLAD
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
