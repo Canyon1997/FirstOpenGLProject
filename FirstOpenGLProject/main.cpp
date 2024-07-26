@@ -40,9 +40,17 @@ int main(void)
 		-0.5f, -0.5f, 0.0f,
 		0.5f, -0.5f, 0.0f,
 		0.0f, 0.5f, 0.0f
-	}
+	};
 
+	// Create a vertex buffer
+	unsigned int VBO;
+	glGenBuffers(1, &VBO);
 
+	// Bind buffer
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+	// Copies previously defined vertex data into buffer's memory
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 
 	// Initialize GLAD
