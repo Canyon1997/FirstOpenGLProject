@@ -7,12 +7,17 @@
 //OpenGL
 #include "main.h"
 
-
-// TODO: LearnOpenGL: Hello-Window "Input"
-
-
 int main(void)
 {
+	// vertex shader source code
+	const char* vertexShaderSource = "#version 330 core\n"
+		"layout (location = 0) in vec3 aPos;\n"
+		"void main()\n"
+		"{\n"
+		"    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+		"}\0";
+
+
 	// Initialize GLFW and set to version 3.3
 	// Tell GLFW to use Core-Profile to get access to smaller subset
 	// of OpenGL features without backwards-compatible features we dont need. 
@@ -52,6 +57,15 @@ int main(void)
 	// Copies previously defined vertex data into buffer's memory
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
+	// TODO - Read "Vertex Shader" on Hello-Triangle
+
+	// Create shader object
+	unsigned int vertexShader;
+	vertexShader = glCreateShader(GL_VERTEX_SHADER);
+
+	// attach shader source code to shader object
+	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+	glCompileShader(vertexShader);
 
 	// Initialize GLAD
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
