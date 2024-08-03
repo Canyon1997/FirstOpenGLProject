@@ -45,8 +45,12 @@ int main(void)
 	}
 	glfwMakeContextCurrent(window);
 
-	// Load glad or else functions fail
-	gladLoadGL();
+    // Initialize GLAD
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	{
+		std::cout << "Failed to initialize GLAD" << std::endl;
+		return -1;
+	}
 
     // specify vertices for a triangle 
 	// Note: these vertices need to be in Normalized Device Coordinates (NDC)
@@ -86,15 +90,6 @@ int main(void)
 	// delete shader objects, no longer need them after linking to program object
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
-
-
-
-	// Initialize GLAD
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		std::cout << "Failed to initialize GLAD" << std::endl;
-		return -1;
-	}
 
 	// Set Size of Rendering Window (in pixels)
 	glViewport(0, 0, 800, 600);
