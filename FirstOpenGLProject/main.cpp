@@ -45,6 +45,9 @@ int main(void)
 	}
 	glfwMakeContextCurrent(window);
 
+	// Registered to be called on every window resize
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
     // Initialize GLAD
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
@@ -63,18 +66,6 @@ int main(void)
 		0.0f, 0.5f, 0.0f
 	};
 
-	// Create a vertex buffer
-	unsigned int VBO;
-	glGenBuffers(1, &VBO);
-
-	// Bind buffer
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-	// Copies previously defined vertex data into buffer's memory
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	// TODO - Read "Vertex Shader" on Hello-Triangle
-
 	// Create vertex shader object
 	unsigned int vertexShader = createVertexShader(vertexShaderSource);
 
@@ -84,21 +75,34 @@ int main(void)
 	// Create shader program
 	unsigned int shaderProgram = createShaderProgram(vertexShader, fragmentShader);
 
-	// Activate Shader Program
-	glUseProgram(shaderProgram);
+	// Create a vertex buffer
+	unsigned int VBO;
+	glGenBuffers(1, &VBO);
 
-	// delete shader objects, no longer need them after linking to program object
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
+	// Create a vertex array object
+	unsigned int VAO;
+	glGenVertexArrays(1, &VAO);
+
+	// Bind vertex array object
+	glBindVertexArray(VAO);
+
+	// Bind buffer
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+	// Copies previously defined vertex data into buffer's memory
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	// interprets vertex data
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 
 	// Set Size of Rendering Window (in pixels)
 	glViewport(0, 0, 800, 600);
 
-	// Registered to be called on every window resize
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
 	// Create the render loop
-
 	while (!glfwWindowShouldClose(window))
 	{
 		// Checks for input from the specified window
@@ -108,6 +112,13 @@ int main(void)
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		// use shader program when we want to render something
+		glUseProgram(shaderProgram);
+		glBindVertexArray(VAO);
+
+		// Draw triangle
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
 		// Swaps color buffer and shows as output to screen
 		glfwSwapBuffers(window);
 
@@ -115,6 +126,8 @@ int main(void)
 		glfwPollEvents();
 	}
 
+    // delete shader program
+	glDeleteProgram(shaderProgram);
 
 	// Clean GLFW resources allocated
 	glfwTerminate();
@@ -197,6 +210,9 @@ unsigned int createShaderProgram(unsigned int vertexShader, unsigned int fragmen
 		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
 		std::cout << "ERROR::SHADER::PROGRAM::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}
+	// delete shader objects, no longer need them after linking to program object
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
 
 	return shaderProgram;
 }
