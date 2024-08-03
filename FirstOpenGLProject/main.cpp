@@ -45,6 +45,9 @@ int main(void)
 	}
 	glfwMakeContextCurrent(window);
 
+	// Load glad or else functions fail
+	gladLoadGL();
+
     // specify vertices for a triangle 
 	// Note: these vertices need to be in Normalized Device Coordinates (NDC)
 	// x,y,z values between -1.0 and 1.0
