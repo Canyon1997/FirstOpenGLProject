@@ -20,3 +20,21 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 /// @param window
 ///    The window to take input from
 void processInput(GLFWwindow* window);
+
+/// @brief
+///    Creates and binds a vertex shader
+/// @return
+///    unsigned int ID of the vertex shader created
+unsigned int createVertexShader(const char* vertexShaderSource);
+
+/// @brief
+///    Creates and binds a fragment shader
+/// @return
+///    unsigned int ID of the fragment shader created
+unsigned int createFragmentShader(const char* fragmentShaderSource);
+
+/// @brief
+///    binds vertex and fragment shader to create shader program
+/// @return
+///    unsigned int ID of the shader program created
+unsigned int createShaderProgram(unsigned int vertexShader, unsigned int fragmentShader);
