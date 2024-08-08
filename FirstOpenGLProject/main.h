@@ -5,6 +5,12 @@
 #include <glad/glad.h>
 
 /// @brief
+///    Initializes all the core glfw and glad processes
+/// @return
+///    A pointer to the window to use for rendering
+GLFWwindow* initializeOpenGL();
+
+/// @brief
 ///    Moment user resizes the window, viewport should b e adjusted as well
 ///    Callback function that gets called each time window is resized
 /// @param window

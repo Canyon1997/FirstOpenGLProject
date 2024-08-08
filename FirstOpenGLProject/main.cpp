@@ -7,7 +7,11 @@
 //OpenGL
 #include "main.h"
 
-// TODO - Fragment Shader Section
+/* TODO:
+* 1. Review code & new concepts on learnopengl.com to understand how triangle is rendered to screen
+* 2. Continue lesson on Element Buffer Objects
+*/
+
 
 int main(void)
 {
@@ -26,34 +30,8 @@ int main(void)
 		"    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
 		"}\0";
 
+	GLFWwindow* window = initializeOpenGL();
 
-	// Initialize GLFW and set to version 3.3
-	// Tell GLFW to use Core-Profile to get access to smaller subset
-	// of OpenGL features without backwards-compatible features we dont need. 
-	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-	// Create window object
-	GLFWwindow* window = glfwCreateWindow(800, 600, "FirstOpenGLWindow", NULL, NULL);
-	if (window == NULL)
-	{
-		std::cout << "Failed to create GLFW window" << std::endl;
-		glfwTerminate();
-		return -1;
-	}
-	glfwMakeContextCurrent(window);
-
-	// Registered to be called on every window resize
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
-    // Initialize GLAD
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		std::cout << "Failed to initialize GLAD" << std::endl;
-		return -1;
-	}
 
     // specify vertices for a triangle 
 	// Note: these vertices need to be in Normalized Device Coordinates (NDC)
@@ -61,10 +39,18 @@ int main(void)
 	// Any coordinate that falls outside this range will be discarded/clipped
 	// and wont be visible on your screen
 	float vertices[] = {
-		-0.5f, -0.5f, 0.0f,
-		0.5f, -0.5f, 0.0f,
-		0.0f, 0.5f, 0.0f
+		0.5f, 0.5f, 0.0f, // top right
+		0.5f, -0.5f, 0.0f, // bottom right
+		-0.5f, -0.5f, 0.0f, // bottom left
+		-0.5f, 0.5f, 0.0f, // top left
 	};
+
+	unsigned int uniqueIndeces[] = { // starts from 0
+		0, 1, 3,
+		1, 2, 3
+	};
+
+
 
 	// Create vertex shader object
 	unsigned int vertexShader = createVertexShader(vertexShaderSource);
@@ -83,21 +69,28 @@ int main(void)
 	unsigned int VAO;
 	glGenVertexArrays(1, &VAO);
 
+	// Create element buffer object
+	unsigned int EBO;
+	glGenBuffers(1, &EBO);
+
 	// Bind vertex array object
 	glBindVertexArray(VAO);
 
-	// Bind buffer
+	// Bind vertex buffer
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+	// Bind element buffer
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 
 	// Copies previously defined vertex data into buffer's memory
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
+	// Copies unique indices data into buffer's memory
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uniqueIndeces), uniqueIndeces, GL_STATIC_DRAW);
+
 	// interprets vertex data
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
 
 	// Set Size of Rendering Window (in pixels)
 	glViewport(0, 0, 800, 600);
@@ -114,10 +107,12 @@ int main(void)
 
 		// use shader program when we want to render something
 		glUseProgram(shaderProgram);
+
+		// bind VAO again with preferred settings before drawing
 		glBindVertexArray(VAO);
 
-		// Draw triangle
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		// Draw triangle from index buffer
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		// Swaps color buffer and shows as output to screen
 		glfwSwapBuffers(window);
@@ -132,6 +127,39 @@ int main(void)
 	// Clean GLFW resources allocated
 	glfwTerminate();
 	return 0;
+}
+
+GLFWwindow* initializeOpenGL()
+{
+	// Initialize GLFW and set to version 3.3
+	// Tell GLFW to use Core-Profile to get access to smaller subset
+	// of OpenGL features without backwards-compatible features we dont need. 
+	glfwInit();
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+	// Create window object
+	GLFWwindow* window = glfwCreateWindow(800, 600, "FirstOpenGLWindow", NULL, NULL);
+	if (window == NULL)
+	{
+		std::cout << "Failed to create GLFW window" << std::endl;
+		glfwTerminate();
+		exit(-1);
+	}
+	glfwMakeContextCurrent(window);
+
+	// Registered to be called on every window resize
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+	// Initialize GLAD
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	{
+		std::cout << "Failed to initialize GLAD" << std::endl;
+		exit(-1);
+	}
+
+	return window;
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
