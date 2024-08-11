@@ -7,11 +7,6 @@
 //OpenGL
 #include "main.h"
 
-/* TODO:
-* 1. Review code & new concepts on learnopengl.com to understand how triangle is rendered to screen
-* 2. Continue lesson on Element Buffer Objects
-*/
-
 
 int main(void)
 {
