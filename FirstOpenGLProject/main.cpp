@@ -23,11 +23,18 @@ int main(void)
 		"    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
 		"}\0";
 
-	const char* fragmentShaderSource = "#version 330 core\n"
+	const char* orangeFragmentShaderSource = "#version 330 core\n"
 		"out vec4 FragColor;\n"
 		"void main()\n"
 		"{\n"
 		"    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+		"}\0";
+
+	const char* yellowFragmentShaderSource = "#version 330 core\n"
+		"out vec4 FragColor;\n"
+		"void main()\n"
+		"{\n"
+		"    FragColor = vec4(1.0f, 1.0f, 0.0f, 1.0f);\n"
 		"}\0";
 
 	GLFWwindow* window = initializeOpenGL();
@@ -38,12 +45,18 @@ int main(void)
 	// x,y,z values between -1.0 and 1.0
 	// Any coordinate that falls outside this range will be discarded/clipped
 	// and wont be visible on your screen
-	float vertices[] = {
-		0.5f, 0.5f, 0.0f, // top right
-		0.5f, -0.5f, 0.0f, // bottom right
-		-0.5f, -0.5f, 0.0f, // bottom left
-		-0.5f, 0.5f, 0.0f, // top left
+	float vertices1[] = {
+		-1.0f, -0.5f, 0.0f,
+		-0.5f, 0.5f, 0.0f,
+		0.0f, -0.5f, 0.0f
 	};
+
+	float vertices2[] = {
+		1.0f, -0.5f, 0.0f,
+		0.5f, 0.5f, 0.0f,
+		0.0f, -0.5f, 0.0f
+	};
+
 
 	unsigned int uniqueIndeces[] = { // starts from 0
 		0, 1, 3,
@@ -56,40 +69,48 @@ int main(void)
 	unsigned int vertexShader = createVertexShader(vertexShaderSource);
 
 	// Create fragment shader object
-	unsigned int fragmentShader = createFragmentShader(fragmentShaderSource);
+	unsigned int orangeFragmentShader = createFragmentShader(orangeFragmentShaderSource);
+	unsigned int yellowFragmentShader = createFragmentShader(yellowFragmentShaderSource);
 
 	// Create shader program
-	unsigned int shaderProgram = createShaderProgram(vertexShader, fragmentShader);
+	unsigned int orangeShaderProgram = createShaderProgram(vertexShader, orangeFragmentShader);
+	unsigned int yellowShaderProgram = createShaderProgram(vertexShader, yellowFragmentShader);
 
 	// Create a vertex buffer
-	unsigned int VBO;
-	glGenBuffers(1, &VBO);
+	unsigned int VBOs[2];
+	glGenBuffers(2, VBOs);
 
 	// Create a vertex array object
-	unsigned int VAO;
-	glGenVertexArrays(1, &VAO);
+	unsigned int VAOs[2];
+	glGenVertexArrays(2, VAOs);
 
 	// Create element buffer object
-	unsigned int EBO;
-	glGenBuffers(1, &EBO);
+	//unsigned int EBO;
+	//glGenBuffers(1, &EBO);
 
 	// Bind vertex array object
-	glBindVertexArray(VAO);
+	glBindVertexArray(VAOs[0]);
 
 	// Bind vertex buffer
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
 
 	// Bind element buffer
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 
 	// Copies previously defined vertex data into buffer's memory
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices1), vertices1, GL_STATIC_DRAW);
 
 	// Copies unique indices data into buffer's memory
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uniqueIndeces), uniqueIndeces, GL_STATIC_DRAW);
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uniqueIndeces), uniqueIndeces, GL_STATIC_DRAW);
 
 	// interprets vertex data
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	glBindVertexArray(VAOs[1]);
+	glBindBuffer(GL_ARRAY_BUFFER, VBOs[1]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices2), vertices2, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 	glEnableVertexAttribArray(0);
 
 	// Set Size of Rendering Window (in pixels)
@@ -106,13 +127,17 @@ int main(void)
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// use shader program when we want to render something
-		glUseProgram(shaderProgram);
+		glUseProgram(orangeShaderProgram);
 
 		// bind VAO again with preferred settings before drawing
-		glBindVertexArray(VAO);
+		glBindVertexArray(VAOs[0]);
 
 		// Draw triangle from index buffer
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		glUseProgram(yellowShaderProgram);
+		glBindVertexArray(VAOs[1]);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		// Swaps color buffer and shows as output to screen
 		glfwSwapBuffers(window);
@@ -122,7 +147,7 @@ int main(void)
 	}
 
     // delete shader program
-	glDeleteProgram(shaderProgram);
+	glDeleteProgram(orangeShaderProgram);
 
 	// Clean GLFW resources allocated
 	glfwTerminate();
